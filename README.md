@@ -1,64 +1,101 @@
-java c
-A Google Matrix and PageRank Procedure 
-MAT 167 Project 
-August 4th, 2024 
-Investigating the PageRank Procedure Through A Google and Term-Document Matrix 
-Abstract 
-Everyday, millions of people people are “Googling.” This raises the question, how does Google decide which web-pages to suggest? Google’s most famous algorithm for solving this problem is fittingly called PageRank. We have implemented the PageRank algorithm on a “small” network of 12 web-pages and demonstrated how it sorts search results. This was done by using the dominant eigenvector of a Google matrix and the power iteration method. Included, are examples of this procedure, showing its effectiveness and efficiency.
-Introduction 
-In this day and age, most people are using Google (or a subsequent search engine) daily. How do these search engines determine the search result? Which lucky web-page gets to be the top result and the likeliest one to be clicked?
-Cleve Moler in his book Numerical Computing with MATLAB, explains the be-ginnings of this technique. In 1998, both Larry Page and Sergey Brin of Stanford University created a way to assign a perceived importance for each page, commonly referred to as the PageRank algorithm (Moler 2004). It uses a stochastic matrix, here referenced as the Google or G matrix, to track the accessibility and catalogs each web-page’s interaction with others. The premise is that each page has a specific rank. The rank of a web-page increases when creditable sources link to it and decreases when the page links to an excessive amount of other pages.
-In tandem with the PageRank algorithm, a term-document matrix is necessary to query each web-page. This is a matrix that considers a network of web-pages and its key terms. When a user wants to search for a specific term, a query vector is used to select specific pages with the desired term. The harmony of the two, is that once a query is made from the term-document matrix, the PageRank returns all desired web-pages in a relevant order.
-Procedure 
-The Google Matrix 
-To demonstrate the procedure, consider the following Google network graph.
-
-Note that each letter represents a given website and the arrows indicate in-coming and out-going links. We can represent this specific network as the Google matrix shown below. The matrix is organized such that each row, 1 through 12, represents the web-pages A through L and each column represents in-going links to the subsequent web-page. We can also notice that the rows represent the out-going links.
-
-How to Find the PageRank vector 
-Now that we have a matrix representation of our network, we can numerically determine the importance of each node. Ideally, the mathematical model we use would show important web-pages are linked to other important web-pages. PageRank achieves this by assigning a rank r(P) to page P based on a weighted sum of links it has to another page Q:
-
-Here, BP represents the set of pages in-linked to P, and |Q| is the number of out-links from page Q.
-For example, in our network, BD = {A} ⇒ r(D) = 2/r(A).
-Since the rank of each page depends on the rank of other pages (and vice versa), we need to iteratively calculate rj (Pi), where i indexes the pages (P1 = A, ..., P12 = L) and j tracks the iteration number. r0(Pi) can be any arbitrary initial page ranks so let’s set r0(Pi) = 1/i. Eq(2) becomes:
-
-All of the page ranks can be arranged as a vector: πj:= [rj (P1) ... rj (P12)]T∈ R12≥0. This results in an easy way to sort the pages by level of importance. It is common practice to normalize πj so that πj = πj/∥πj∥1. More importantly, if πj converges as j goes to infinity, then the PageRank vector is defined as π := limj→∞ πj.
-Power Iteration Method 
-There are several approaches to finding π. One method, Power Iteration, relies on the fact that subsequent πj’s can be computed by multiplying πTj−1 by G. Explicitly:
-
-Eigenvalue Decomposition 
-Now, we will look at finding π using Eigenvalue Decomposition. Since πTG = πT implies πGT = π, that would mean πTis the dominant left eigenvector of G, which is the same as saying π is the dominant eigenvector(largest eigenvalue) of GT. Performing an eigenvalue decomposition of our GT matrix yields the following set of eigenvalues λ and eigenvectors v1, ..., v12:
-
-Here lies a problem. Our dominant eigenvalue λ = 0.884 is less than 1. The Power Iteration method would converge to zero becuase multiplying a matrix and its eige代 写MAT 167 A Google Matrix and PageRank ProcedureMatlab
-代做程序编程语言nvector results in the eigenvector scaled by its corresponding eigenvalue. If πj approaches an eigenvector of GT, that would mean subsequent iterations will keep shrinking that vector until πj = 0.
-Iterating through πj’s can be thought of as finding the new probability distribution of where a web-surfer would be after following j links. Take a moment to look at web-page C. There are only links going TO C but none going FROM C! This means users jumping between web-pages would be able to reach C, but not leave it. In a sense, our pages “lose” rank with every πjiteration because users that previously linked to C can no longer move to a new page and no longer considered. For this problematic behavior, web-pages (such as C) with no out-going links are noticed and dubbed dangling nodes. To remediate this issue, let’s consider that the user at website C has the ability to then pick any other site in our network by random, in essence have the ability teleport. This will be denoted in the new (stochastic) G matrix.
-
-Our new λ and v1, v2, ..., v12 become:
-
-Normalizing v1 so that π = − ∥v1∥1/v1, we get:
-πT = [0.029 0.060 0.106 0.023 0.207 0.076 0.072 0.152 0.061 0.074 0.088 0.053]
-Setting π0 = [1/12 ...1/12], Power Iteration with π50 = π0G50 yields
-πT = [0.029 0.060 0.106 0.023 0.207 0.076 0.072 0.152 0.061 0.074 0.088 0.053]
-Guaranteeing Strongly Connected Network 
-When dealing with web-page networks, a potential obstacle that can come up is that the network is not strongly connected. A strongly connected network is one where a path of links can be found between any two nodes. This is cause by one of two scenarios: there are dangling nodes (which we already addressed) or the network is really 2 or more sub-networks lacking bi-directional links (not the case for us). Luckily, the idea we used for addressing our dangling node can be scaled up to force any network G to be a strongly connected network ˜G.
-˜G := αG + (1 − α)E                                              (8)
-Where α ∈ [0, 1] and E := 12/1 ✶12✶T12.
-Essentially, what this addition of matrices does is allow every node to be able to teleport to any other node. In our case, we generate the same π whether we use G or ˜G.
-Term-Document Matrix 
-The PageRank algorithm is also dependent on a query, or a way to retrieve de-sired web-pages. For our 12 web-pages, we are going to use a term-document matrix. Consider the following web-pages and their keywords:
-
-Table 1: Webpage-Keyword
-We can use this table to construct a term-document matrix. A term-document matrix is a way to represent the presence of terms (in this case, car brands) across a set of documents (web-pages). Each row of the matrix corresponds to a unique term, and each column corresponds to a document. The entry in the matrix indicates whether a particular term is present in a particular document. This is shown in the following table.
-
-Table 2: Term-Document
-The matrix can also be constructed by the following: Let W be the set of web pages and C be the set of car brands. We define a binary matrix M of size |C| × |W| where each entry Mij is 1 if the i-th car brand is present on the j-th web page, and 0 otherwise.
-
-Either way, the resulting matrix will be:
-
-Constructing the Queries 
-The term-document matrix itself can look daunting, especially with a large matrix. In order to efficiently utilize this matrix, all someone needs to do is consider the list keywords.
-1.Alfa Romeo, 2.Audi, 3.Cadillac, 4.Dodge, 5.Hyundai, 6.Jaguar, 7.Lexus, 8.Mazda, 9.Mercedes, 10.Nissan, 11.Porsche, 12.Tesla, 13.Toyota, 14.Volkswagen
-These keywords can be thought of as a vector comprised of 14 elements. For any desired keyword, one needs to make that index of the keyword equal to one, while undesired keyword are zero. Take the transpose of the term-document matrix and multiplying it by the vector and the result will be all the web-pages with the desired term(s). This can be even more elaborate if you want multiple keywords in each document, you can set the vector indexed at the desired keywords 1/# of desired keywords and look for ones in the resulting vector. If there is a keyword one wants excluded in the return, one can set the index of those numbers to negative one. To read the output vector, the reader just needs to look at the index of where the ones are. These are the desired web-pages that then go on to the PageRank vector π.
-
-         
+java cDue Sep 23 by 11:59pm Points 70 Submitting a file upload
+Available Sep 13 at 10am - Dec 24 at 11:59pm
+Start Assignment
+Assignment 2 (70 Points)
+Due Monday Sep 23 at 11:59 PM
+In this assignment, you need to parallelize simple programs using C++11 threads. There are two
+problems in this assignment, and for each problem you are provided the serial C++ implementation, the
+expected parallelization strategy, and the expected output to be generated by your parallel solution.
+Before starting this assignment, you should have completed the Slurm Tutorial
+(https://canvas.sfu.ca/courses/84236/pages/slurm-tutorial) which walks you through how to use our
+private cluster for your code development. [NOTE: The cluster is not set up to run Slurm yet, so
+please start the assignment on CSIL machines. We will send an announcement when the cluster
+is ready.]
+General Instructions
+1. You are provided with the serial version of all the programs at assignment2.tar.gz
+(https://canvas.sfu.ca/courses/84236/files/24448336?wrap=1)
+(https://canvas.sfu.ca/courses/84236/files/24448336/download?download_frd=1) . To run a program
+(e.g., curve_area.cpp ), follow the steps below:
+Run make curve_area . This creates a binary file called curve_area .
+Create a slurm job to run the binary file using the following command: ./curve_area --nPoints
+10000000 --coeffA 2.0 --coeffB 4.0? --rSeed 15
+Use the command-line argument --nPoints to specify the number of points to be generated
+(detailed description about curve_area mentioned below).
+2. All parallel programs should have the command-line argument --nThreads to specify the number of
+threads for the program. Example: --nThreads 4 .
+3. While testing your solutions, make sure that cpus-per-task is correctly specified in your slurm
+config file based on your requirement.
+4. You will be asked to print the time spent by different threads on specific code regions. The time spent
+by any code region can be computed as follows:
+timer t1;
+t1.start();
+ Assignment 2
+ 1/6
+/* ---- Code region whose time is to be measured --- */
+double time_taken = t1.stop();
+5. Sample outputs for all the programs can be found in sample_outputs directory. Programs will be
+evaluated and graded automatically. Please make sure that your program output strictly
+follows the sample output format.
+6. We have provided test scripts for you to quickly test your solutions during your development process.
+You can test your code using the test script available at test_scripts/ . Note that these test scripts
+only validate the output formats, and a different evaluation script will be used for grading the
+assignments. Important: You should use slurm when performing these and other tests. The test
+scripts under test_scripts/ folder test for up to 8 threads; make sure --cpus-per-task=8 is set in
+your slurm job.
+$ ls test_scripts/*tester.pyc
+curve_area_tester.pyc heat_transfer_tester.pyc
+1. Monte Carlo Estimation of Area Inside a Curve [25 Points]
+The area inside an arbit代 写threads Assignment 2
+代做程序编程语言rary curve can be computed using the mechanism explained in class, similar to
+the Monte Carlo Pi Estimation and Monte Carlo Ellipse Area Estimation. In this problem, you will
+compute the area inside a curve with the following equation:
+Where a and b are positive numbers. For example, the curve represented by is shown
+here:
+Another example: The curve represented by is shown here:
+The method can be summarized in the following steps:
+ Assignment 2
+ 2/6
+1. Consider a curve that follows the above equation with coefficients a and b. For the purposes of this
+problem, both coefficients are >= 1. With these coefficient values, the curve will be completely
+enclosed inside a square with corner coordinates (-1,-1), (-1,1), (1,1), (1,-1).
+2. The ratio of the curve area to the square area is determined by the relative count of points inside the
+curve to total points inside the square.
+3. We randomly generate n points inside the square, where both the x-coordinate and y-coordinate are
+between -1 and 1. Let cpoints out of the n points fall inside the curve. A point is determined to be
+inside the curve if 
+4. The area inside the curve is then approximated as: Area / 4 = cpoints / n ==> Area = 4 *
+cpoints / n .
+The program below implements the above algorithm.
+ uint curve_count = 0;
+ double x_coord, y_coord;
+ for (uint i = 0; i /curve_area_tester.pyc --execPath=
+--scriptPath=/curve_area_evaluator.pyc
+2. Heat Transfer [45 Points]
+A description of the heat transfer problem was discussed in class, and is also available from the LLNL
+Parallel Computing Tutorial here (https://hpc.llnl.gov/training/tutorials/introduction-parallel-computing?tutorial#ExamplesHeat) . The following code shows the basic serial implementation for this problem:
+ // Initialize Temperature Array Prev[][]. Points in the middle are set to mTemp while rest is se
+t to 0
+ for (uint stepcount=1; stepcount /test_scripts/heat_transfer_tester.pyc --execPath= --scriptPath=
+Submission Guidelines
+Make sure that your solutions folder has the following files and sub-folders. Let's say your solutions
+folder is called my_assignment2_solutions . It should contain:
+core/ -- The folder containing all core files. It is already available in the assignment package. Do
+not modify it or remove any files.
+Makefile -- Makefile for the assignment. This file should not be changed.
+curve_area_parallel.cpp
+heat_transfer_parallel.cpp
+To create the submission file, follow the steps below:
+1. Enter in your solutions folder, and remove all the object/temporary files.
+ Assignment 2
+ 5/6
+$ cd my_assignment2_solutions/
+$ make clean
+2. Create the tar.gz file.
+$ tar cvzf assignment2.tar.gz *
+which creates a compressed tar ball that contains the contents of the folder.
+3. Validate the tar ball using the submission_validator.pyc script.
+$ python /test_scripts/submission_validator.pyc --tarPath=/assignment2.tar.gz
+Submit via canvas by the deadline.
+ Assignment 2
+ 6/6         
 加QQ：99515681  WX：codinghelp
